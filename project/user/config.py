@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 basedir = os.path.abspath(os.path.dirname(__file__))
 load_dotenv(os.path.join(basedir, '.env'))
 
+#* Divide config into classes eg: Staging, Production *#
 
 class Config(object):
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'verysecretkey'

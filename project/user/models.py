@@ -16,6 +16,7 @@ class User(db.Model):
     admin = db.Column(db.Boolean, nullable = False, default = False)
     active = db.Column(db.Boolean, nullable = False, default = False)
     verified = db.Column(db.Boolean, nullable = False, default = False)
+    #* OTP should be cached. Since user doesn't need them after verifying *#
     otp = db.Column(db.String(16),default = secrets.token_hex(3), unique = True)
 
     def encode_auth_token(self, user_id):
@@ -59,6 +60,7 @@ class User(db.Model):
 
     
     def __repr__(self):
+        #* Use f-string instead of format *#
         return '<User {}>'.format(self.user_id, 
         self.user_firstname, 
         self.user_lastname, 
