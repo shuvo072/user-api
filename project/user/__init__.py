@@ -6,6 +6,8 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from project.user.config import Config
 
+#* Application Factory Pattern needs to be implemented *#
+
 app = Flask(__name__)
 #api = Api(app)
 app.config.from_object(Config)
@@ -20,6 +22,6 @@ app.register_blueprint(verified_user_blueprint)
 app.register_blueprint(auth_blueprint)
 app.register_blueprint(user_api_blueprint)
 
-
+#* Is this line needed? *#
 
 from project.user import routes,models

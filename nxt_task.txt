@@ -1,0 +1,9 @@
+We will be adding a new jobs model with titles, companies, start_years, and end_years fields. In one timeframe one user can hold only one job. Start year and end year has a relation of [x,y) which means (2020-2021, 2021-2021,2021-) is valid but (2020-2021,2020-2022) is not. If no end year, then it is his current job. User can have only one currnet job at a time. If a new job is entered, the old job's end year will automatically be the same as the start year of the new one providing that it holds all the validation.
+Endpoints:
+/api/job -> add new job
+/api/job/current -> displays current job
+/api/job/history -> displays all the jobs of current user with detail (sorted).
+
+Look at sqlalchemy relationship, foreign keys.
+Optimize number of queries executed.
+Get username from jwt token during decorator validation. So that one user can't upload another ones data.

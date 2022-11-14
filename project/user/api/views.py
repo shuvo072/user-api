@@ -146,7 +146,7 @@ class UserAPI(MethodView):
             response_object = {
                 'message': f'User {id} does not exist!'
             }
-            return response_object, 400
+            return response_object, 400 #! Not found should be 404 !#
             
         user2.user_firstname = user_firstname
         user2.user_lastname = user_lastname
@@ -162,6 +162,8 @@ class UserAPI(MethodView):
 
 
 user_view = UserAPI.as_view('User_Api')
+
+#* No need of 3 lines, one can accomplish the job *#
 
 user_api_blueprint.add_url_rule('/api/users/', defaults={'id': None}, view_func=user_view,methods=['GET'])
 user_api_blueprint.add_url_rule('/api/users/', view_func=user_view,methods=['POST'])
@@ -231,7 +233,7 @@ class LoginAPI(MethodView):
                         'message': 'Verify yourself first'
                     }
                     return make_response(jsonify(responseObject)), 404
-            
+            #! No condition for wrong password !#
 
         except Exception as e:
             print(e)
@@ -285,7 +287,7 @@ class VerifyAPI(MethodView):
         #     }
         #     return make_response(jsonify(responseObject)), 401
 
-
+#! Not needed. Admin will call previous CRUD api only. !#
 class AdminUsersAPI(MethodView):
     def get(self):
         users = User.query.filter_by(admin=True)
