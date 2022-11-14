@@ -1,2 +1,2 @@
-FLASK_APP=user_api.py
-FLASK_ENV=development
+FLASK_APP=project/__init__.py
+FLASK_DEBUG=1
