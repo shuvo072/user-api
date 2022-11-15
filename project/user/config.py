@@ -16,6 +16,7 @@ class BaseConfig:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     CACHE_TYPE = 'RedisCache'
     CACHE_REDIS_URL = 'redis://localhost:6379/0'
+    #SQLALCHEMY_ECHO=True
 
 
 class DevelopmentConfig(BaseConfig):

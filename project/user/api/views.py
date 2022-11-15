@@ -1,5 +1,5 @@
 import secrets
-from project.user.models import User
+from project.user.models import User,Jobs
 from flask import request,jsonify, make_response
 from project.user import db, bcrypt, cache
 from flask.views import MethodView
@@ -27,6 +27,8 @@ def admin_required(f):
                     return make_response(jsonify(responseObject)), 404
     return decorator
 
+# # Token Decorator
+# def token_required
 
 class UserAPI(MethodView):
     
@@ -255,24 +257,72 @@ class VerifiedUserAPI(MethodView):
         if auth_token:
             resp = User.decode_auth_token(auth_token)
             if not isinstance(resp, str):
-                user = User.query.filter_by(user_id=resp).first()
+                for u, j in db.session.query(User, Jobs).filter(User.user_id==resp).\
+                    filter(Jobs.user_id==resp).filter(Jobs.end_year==None).all():
+                    # print(u)
+                    # print(j)
+                    # return "Hello"
+                    # user_with_job = db.session.query(User).join(Jobs).filter(User.user_id==resp,Jobs.end_year==None).first()
+                    # user = User.query.filter_by(user_id=resp).first().join()
+                    # print(user_with_job)
+                    # return "Hello"
+                    # current_job = Jobs.query.filter_by(user_id=resp,end_year=None).first()
+                    if j:
+                        user_job_info=[]
+                        user_job_info.append({
+                            "Job_ID": j.job_id,
+                            "Job Title": j.job_title,
+                            "Company Name": j.company_name,
+                            "Start Year": j.start_year,
+                            "End Year": j.end_year
+                            })
+                        responseObject = {
+                            'status': 'Verified User',
+                            'data': {
+                                "ID": u.user_id,
+                                "First Name": u.user_firstname,
+                                "Last Name": u.user_lastname,
+                                "Username": u.user_username,
+                                "Created At": u.user_created_at,
+                                "Last Modified": u.user_updated_at,
+                                "Current Job": user_job_info
+                            }
+                        }
+                        return make_response(jsonify(responseObject)), 200
+                    # else:
+                    #     responseObject = {
+                    #         'status': 'Verified User',
+                    #         'data': {
+                    #             "ID": u.user_id,
+                    #             "First Name": u.user_firstname,
+                    #             "Last Name": u.user_lastname,
+                    #             "Username": u.user_username,
+                    #             "Created At": u.user_created_at,
+                    #             "Last Modified": u.user_updated_at,
+                    #             "Current Job": "Not currently employed"
+                    #         }
+                    #     }
+                    #     return make_response(jsonify(responseObject)), 200 
+
+                
                 responseObject = {
                     'status': 'Verified User',
                     'data': {
-                        "ID": user.user_id,
-                        "First Name": user.user_firstname,
-                        "Last Name": user.user_lastname,
-                        "Username": user.user_username,
-                        "Created At": user.user_created_at,
-                        "Last Modified": user.user_updated_at
+                        # "ID": u.user_id,
+                        # "First Name": u.user_firstname,
+                        # "Last Name": u.user_lastname,
+                        # "Username": u.user_username,
+                        # "Created At": u.user_created_at,
+                        # "Last Modified": u.user_updated_at,
+                        "Current Job": "Not currently employed"
                     }
                 }
-                return make_response(jsonify(responseObject)), 200
-            responseObject = {
-                'status': 'fail',
-                'message': resp
-            }
-            return make_response(jsonify(responseObject)), 401
+                return make_response(jsonify(responseObject)), 200             
+                # responseObject = {
+                #     'status': 'fail',
+                #     'message': resp
+                # }
+                # return make_response(jsonify(responseObject)), 401
         else:
             responseObject = {
                 'status': 'fail',
@@ -287,10 +337,114 @@ verified_user_blueprint.add_url_rule('/api/users/me/',view_func=verifiedUserData
 
 class JobAPI(MethodView):
     def post(self):
-        return "Job added"
+        post_data = request.get_json()
+        auth_header = request.headers.get('Authorization')
+        if auth_header:
+            auth_token = auth_header.split(" ")[1]
+        else:
+            auth_token = ''
+        if auth_token:
+            resp = User.decode_auth_token(auth_token)
+            #print(resp)
+            user = User.query.filter_by(user_id=resp).first()
+            if user:        
+                job_title = post_data.get('job_title')
+                company_name = post_data.get('company_name')
+                start_year = post_data.get('start_year')
+                end_year = post_data.get('end_year')
+                user_jobs = Jobs.query.filter_by(user_id=user.user_id).order_by(Jobs.end_year.desc()).all()
+                if not user_jobs:
+                    db.session.add(Jobs(job_title=job_title, company_name=company_name,
+                    start_year=start_year,end_year=end_year, job_holder=user))
+                    db.session.commit()
+
+                    response_object = {
+                        'message': 'Job added!'
+                    }
+                    return response_object, 201
+                # print(type(user_jobs))
+                # return "hello"
+                for job in user_jobs:
+                    if job.end_year != None:
+                        if int(start_year) != int(job.start_year) and int(start_year) >= int(job.end_year):
+                            if job.job_title==None:
+                                db.session.add(Jobs(job_title=job_title, company_name=company_name,
+                                start_year=start_year,end_year=end_year, job_holder=user))
+                                db.session.commit()
+
+                                response_object = {
+                                'message': 'Job added!'
+                                }
+                                return response_object, 201
+                            else:
+                                response_object = {
+                                'message': 'Job already Exists!'
+                                }
+                                return response_object, 403
+                        else:
+                            response_object = {
+                            'message': 'You are already employed'
+                            }
+                            return response_object, 409
+                    else:
+                        if int(start_year) >= int(job.start_year):
+                            job.end_year=start_year
+                            db.session.add(Jobs(job_title=job_title, company_name=company_name,
+                            start_year=start_year,end_year=end_year, job_holder=user))
+                            db.session.commit()
+                            response_object = {
+                            'message': 'Job added!'
+                            }
+                            return response_object, 201
+                        else:
+                            response_object = {
+                            'message': '2 Job at once!'
+                            }
+                            return response_object, 403
+                
+            else:
+                response_object = {
+                    'message': 'You are not a valid user or Beware! You are trying to add job for other people'
+                }
+                return response_object, 405
+        else:
+            response_object = {
+                'message': 'Not Valid Token'
+            }
+            return response_object, 403
+
     
     def get(self):
-        return "Current Job"
+        auth_header = request.headers.get('Authorization')
+        if auth_header:
+            auth_token = auth_header.split(" ")[1]
+        else:
+            auth_token = ''
+        if auth_token:
+            resp = User.decode_auth_token(auth_token)
+            user = User.query.filter_by(user_id=resp).first()
+            if user: 
+                current_job = Jobs.query.filter_by(user_id=resp,end_year=None).first()
+                responseObject = {
+                            'status': 'Current Job',
+                            'data': {
+                                "Job_ID": current_job.job_id,
+                                "Job Title": current_job.job_title,
+                                "Company Name": current_job.company_name,
+                                "Start Year": current_job.start_year
+                            }
+                        }
+                return make_response(jsonify(responseObject)), 200
+            else:
+                response_object = {
+                    'message': 'You are Not an User'
+                }
+                return response_object, 401
+        else:
+            response_object = {
+                'message': 'Not Valid Token'
+            }
+            return response_object, 403
 
 
 job_view = JobAPI.as_view('job-api')
@@ -300,7 +454,36 @@ job_blueprint.add_url_rule('/api/job/current/',view_func=job_view,methods=['GET'
 
 class JobHistoryAPI(MethodView):
     def get(self):
-        return "history fetched"
+        auth_header = request.headers.get('Authorization')
+        if auth_header:
+            auth_token = auth_header.split(" ")[1]
+        else:
+            auth_token = ''
+        if auth_token:
+            resp = User.decode_auth_token(auth_token)
+            user = User.query.filter_by(user_id=resp).first()
+            if user: 
+                jobs = Jobs.query.filter_by(user_id=resp).all()
+                job_history=[]
+                for job in jobs:
+                    job_history.append({
+                        "Job_ID": job.job_id,
+                        "Job Title": job.job_title,
+                        "Company Name": job.company_name,
+                        "Start Year": job.start_year,
+                        "End Year": job.end_year
+                    })
+                return job_history, 200
+            else:
+                response_object = {
+                    'message': 'You are Not an User'
+                }
+                return response_object, 401
+        else:
+            response_object = {
+                    'message': 'Not Valid Token'
+                }
+            return response_object, 403
 
 
 jobHistory_view = JobHistoryAPI.as_view('job-history-api')

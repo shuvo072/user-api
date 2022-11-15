@@ -18,7 +18,7 @@ class User(db.Model):
     active = db.Column(db.Boolean, nullable = False, default = False)
     verified = db.Column(db.Boolean, nullable = False, default = False)
     #* OTP should be cached. Since user doesn't need them after verifying *#
-    jobs = db.relationship('Jobs', backref = 'job-title', lazy = 'dynamic')
+    jobs = db.relationship('Jobs', backref = 'job_holder', lazy = 'select')
 
     def encode_auth_token(self, user_id):
         try:
@@ -63,7 +63,7 @@ class User(db.Model):
 
 
 class Jobs(db.Model):
-    #__tablename__ = ['jobs']
+    __tablename__ = 'jobs'
     job_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     job_title = db.Column(db.String(120), index = True, nullable=False)
     company_name = db.Column(db.String(120), index = True, nullable=False)
@@ -71,12 +71,13 @@ class Jobs(db.Model):
     end_year = db.Column(db.String(5)) 
     user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'))
 
-    def __init__(self, job_title, company_name, start_year,
-    end_year):
-        self.job_title = job_title
-        self.company_name = company_name
-        self.start_year = start_year
-        self.end_year = end_year
+    # def __init__(self, job_title, company_name, start_year,
+    # end_year,job_holder):
+    #     self.job_title = job_title
+    #     self.company_name = company_name
+    #     self.start_year = start_year
+    #     self.end_year = end_year
+    #     self.user_id = job_holder
 
     def __repr__(self):
         return f"<Job {self.job_id} : {self.job_title} {self.company_name} {self.start_year} {self.end_year}>"

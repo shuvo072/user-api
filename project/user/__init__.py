@@ -27,7 +27,9 @@ def create_app(config_class=DevelopmentConfig):
     migrate.init_app(app,db)
     cache.init_app(app)
 
-    from project.user.api import user_api_blueprint,auth_blueprint,verified_user_blueprint
+    from project.user.api import user_api_blueprint,auth_blueprint,verified_user_blueprint,job_blueprint,job_history_blueprint
+    app.register_blueprint(job_history_blueprint)
+    app.register_blueprint(job_blueprint)
     app.register_blueprint(verified_user_blueprint)
     app.register_blueprint(auth_blueprint)
     app.register_blueprint(user_api_blueprint)
