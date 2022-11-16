@@ -256,73 +256,59 @@ class VerifiedUserAPI(MethodView):
             auth_token = ''
         if auth_token:
             resp = User.decode_auth_token(auth_token)
-            if not isinstance(resp, str):
-                for u, j in db.session.query(User, Jobs).filter(User.user_id==resp).\
-                    filter(Jobs.user_id==resp).filter(Jobs.end_year==None).all():
-                    # print(u)
-                    # print(j)
-                    # return "Hello"
-                    # user_with_job = db.session.query(User).join(Jobs).filter(User.user_id==resp,Jobs.end_year==None).first()
-                    # user = User.query.filter_by(user_id=resp).first().join()
-                    # print(user_with_job)
-                    # return "Hello"
-                    # current_job = Jobs.query.filter_by(user_id=resp,end_year=None).first()
-                    if j:
-                        user_job_info=[]
-                        user_job_info.append({
-                            "Job_ID": j.job_id,
-                            "Job Title": j.job_title,
-                            "Company Name": j.company_name,
-                            "Start Year": j.start_year,
-                            "End Year": j.end_year
-                            })
-                        responseObject = {
-                            'status': 'Verified User',
-                            'data': {
-                                "ID": u.user_id,
-                                "First Name": u.user_firstname,
-                                "Last Name": u.user_lastname,
-                                "Username": u.user_username,
-                                "Created At": u.user_created_at,
-                                "Last Modified": u.user_updated_at,
-                                "Current Job": user_job_info
-                            }
+            # if not isinstance(resp, str):
+            for u, j in db.session.query(User, Jobs).filter(User.user_id==resp).\
+                filter(Jobs.end_year==None).all():
+                # print(u)
+                # print(j)
+                # return "Hello"
+                # user_with_job = db.session.query(User).join(Jobs).filter(User.user_id==resp,Jobs.end_year==None).first()
+                # user = User.query.filter_by(user_id=resp).first().join()
+                # print(user_with_job)
+                # return "Hello"
+                # current_job = Jobs.query.filter_by(user_id=resp,end_year=None).first()
+                if j.user_id==resp:
+                    user_job_info=[]
+                    user_job_info.append({
+                        "Job_ID": j.job_id,
+                        "Job Title": j.job_title,
+                        "Company Name": j.company_name,
+                        "Start Year": j.start_year,
+                        "End Year": j.end_year
+                        })
+                    responseObject = {
+                        'status': 'Verified User',
+                        'data': {
+                            "ID": u.user_id,
+                            "First Name": u.user_firstname,
+                            "Last Name": u.user_lastname,
+                            "Username": u.user_username,
+                            "Created At": u.user_created_at,
+                            "Last Modified": u.user_updated_at,
+                            "Current Job": user_job_info
                         }
-                        return make_response(jsonify(responseObject)), 200
-                    # else:
-                    #     responseObject = {
-                    #         'status': 'Verified User',
-                    #         'data': {
-                    #             "ID": u.user_id,
-                    #             "First Name": u.user_firstname,
-                    #             "Last Name": u.user_lastname,
-                    #             "Username": u.user_username,
-                    #             "Created At": u.user_created_at,
-                    #             "Last Modified": u.user_updated_at,
-                    #             "Current Job": "Not currently employed"
-                    #         }
-                    #     }
-                    #     return make_response(jsonify(responseObject)), 200 
-
-                
-                responseObject = {
-                    'status': 'Verified User',
-                    'data': {
-                        # "ID": u.user_id,
-                        # "First Name": u.user_firstname,
-                        # "Last Name": u.user_lastname,
-                        # "Username": u.user_username,
-                        # "Created At": u.user_created_at,
-                        # "Last Modified": u.user_updated_at,
-                        "Current Job": "Not currently employed"
                     }
-                }
-                return make_response(jsonify(responseObject)), 200             
-                # responseObject = {
-                #     'status': 'fail',
-                #     'message': resp
-                # }
-                # return make_response(jsonify(responseObject)), 401
+                    return make_response(jsonify(responseObject)), 200
+                else:
+                    responseObject = {
+                        'status': 'Verified User',
+                        'data': {
+                            "ID": u.user_id,
+                            "First Name": u.user_firstname,
+                            "Last Name": u.user_lastname,
+                            "Username": u.user_username,
+                            "Created At": u.user_created_at,
+                            "Last Modified": u.user_updated_at,
+                            "Current Job": "Not currently employed"
+                        }
+                    }
+                    return make_response(jsonify(responseObject)), 200 
+
+            # responseObject = {
+            #     'status': 'fail',
+            #     'message': resp
+            # }
+            # return make_response(jsonify(responseObject)), 401
         else:
             responseObject = {
                 'status': 'fail',
