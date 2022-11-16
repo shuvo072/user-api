@@ -126,8 +126,8 @@ user_view = UserAPI.as_view('User_Api')
 
 #* No need of 3 lines, one can accomplish the job *#
 
-user_api_blueprint.add_url_rule('/api/users/', defaults={'id': None}, view_func=user_view,methods=['GET', 'POST'])
-#user_api_blueprint.add_url_rule('/api/users/', view_func=user_view,methods=['POST'])
+user_api_blueprint.add_url_rule('/api/users/', defaults={'id': None}, view_func=user_view,methods=['GET'])
+user_api_blueprint.add_url_rule('/api/users/', view_func=user_view,methods=['POST'])
 user_api_blueprint.add_url_rule('/api/users/<int:id>', view_func=user_view,methods=['GET', 'PUT', 'DELETE'])
 
 

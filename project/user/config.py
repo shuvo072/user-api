@@ -22,6 +22,7 @@ class BaseConfig:
 class DevelopmentConfig(BaseConfig):
     """Development configuration."""
     DEBUG = True
+    TESTING = False
     BCRYPT_LOG_ROUNDS = 13
     SQLALCHEMY_DATABASE_URI = postgres_docker_base + database_name
 
@@ -30,7 +31,7 @@ class TestingConfig(BaseConfig):
     """Testing configuration."""
     DEBUG = True
     TESTING = True
-    BCRYPT_LOG_ROUNDS = 13
+    BCRYPT_LOG_ROUNDS = 4
     SQLALCHEMY_DATABASE_URI = postgres_docker_base + database_name + '_test'
     PRESERVE_CONTEXT_ON_EXCEPTION = False
 
@@ -38,6 +39,7 @@ class TestingConfig(BaseConfig):
 class ProductionConfig(BaseConfig):
     """Production configuration."""
     SECRET_KEY = 'verysecretkey'
+    TESTING = False
     DEBUG = False
     SQLALCHEMY_DATABASE_URI = 'postgresql:///example'
 
