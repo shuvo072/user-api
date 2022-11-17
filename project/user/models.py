@@ -4,7 +4,6 @@ from project.user import db,bcrypt
 import datetime
 from dataclasses import dataclass
 
-# @dataclass
 class User(db.Model):
     __tablename__ = 'users'
     user_id = db.Column(db.Integer, primary_key = True, autoincrement=True)

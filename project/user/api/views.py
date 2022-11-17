@@ -27,9 +27,6 @@ def admin_required(f):
                     return make_response(jsonify(responseObject)), 404
     return decorator
 
-# # Token Decorator
-# def token_required
-
 class UserAPI(MethodView):
     
     @admin_required
@@ -50,16 +47,21 @@ class UserAPI(MethodView):
             
         else:
             user = User.query.filter_by(user_id=id).first()
-            data_user = []
-            data_user.append({
-                "ID": user.user_id,
-                "First Name": user.user_firstname,
-                "Last Name": user.user_lastname,
-                "Username": user.user_username,
-                "Created At": user.user_created_at,
-                "Last Modified": user.user_updated_at
-                })
-            return data_user, 200
+            if user:
+                response_object = {
+                    "ID": user.user_id,
+                    "First Name": user.user_firstname,
+                    "Last Name": user.user_lastname,
+                    "Username": user.user_username,
+                    "Created At": user.user_created_at,
+                    "Last Modified": user.user_updated_at
+                    }
+                return response_object, 200
+            else:
+                response_object = {
+                    'message': 'User does not exist!'
+                }
+                return response_object, 400
                     
     @admin_required
     def post(self):
@@ -137,6 +139,7 @@ class RegisterAPI(MethodView):
         post_data = request.get_json()
         user = User.query.filter_by(user_username=post_data.get('user_username')).first()
         otp_gen=secrets.token_hex(3)
+        #print(otp_gen)
         cache.set(post_data.get('user_username'),otp_gen)
         if not user:
             try:
@@ -258,7 +261,7 @@ class VerifiedUserAPI(MethodView):
             resp = User.decode_auth_token(auth_token)
             # if not isinstance(resp, str):
             for u, j in db.session.query(User, Jobs).filter(User.user_id==resp).\
-                filter(Jobs.end_year==None).all():
+                filter(Jobs.user_id==resp).filter(Jobs.end_year==None).all():
                 # print(u)
                 # print(j)
                 # return "Hello"
@@ -267,7 +270,7 @@ class VerifiedUserAPI(MethodView):
                 # print(user_with_job)
                 # return "Hello"
                 # current_job = Jobs.query.filter_by(user_id=resp,end_year=None).first()
-                if j.user_id==resp:
+                if j:
                     user_job_info=[]
                     user_job_info.append({
                         "Job_ID": j.job_id,
@@ -303,12 +306,21 @@ class VerifiedUserAPI(MethodView):
                         }
                     }
                     return make_response(jsonify(responseObject)), 200 
+            user = User.query.filter_by(user_id=resp).first()
+            responseObject = {
+                        'status': 'Verified User',
+                        'data': {
+                            "ID": user.user_id,
+                            "First Name": user.user_firstname,
+                            "Last Name": user.user_lastname,
+                            "Username": user.user_username,
+                            "Created At": user.user_created_at,
+                            "Last Modified": user.user_updated_at,
+                            "Current Job": "Not currently employed"
+                        }
+                    }
+            return make_response(jsonify(responseObject)), 200
 
-            # responseObject = {
-            #     'status': 'fail',
-            #     'message': resp
-            # }
-            # return make_response(jsonify(responseObject)), 401
         else:
             responseObject = {
                 'status': 'fail',

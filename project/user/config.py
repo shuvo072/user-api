@@ -14,9 +14,7 @@ class BaseConfig:
     DEBUG = False
     BCRYPT_LOG_ROUNDS = 13
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    CACHE_TYPE = 'RedisCache'
-    CACHE_REDIS_URL = 'redis://localhost:6379/0'
-    SQLALCHEMY_ECHO=True
+    #SQLALCHEMY_ECHO=True
 
 
 class DevelopmentConfig(BaseConfig):
@@ -25,6 +23,8 @@ class DevelopmentConfig(BaseConfig):
     TESTING = False
     BCRYPT_LOG_ROUNDS = 13
     SQLALCHEMY_DATABASE_URI = postgres_docker_base + database_name
+    CACHE_TYPE = 'RedisCache'
+    CACHE_REDIS_URL = 'redis://localhost:6379/0'
 
 
 class TestingConfig(BaseConfig):
@@ -34,6 +34,8 @@ class TestingConfig(BaseConfig):
     BCRYPT_LOG_ROUNDS = 4
     SQLALCHEMY_DATABASE_URI = postgres_docker_base + database_name + '_test'
     PRESERVE_CONTEXT_ON_EXCEPTION = False
+    CACHE_TYPE = 'RedisCache'
+    CACHE_REDIS_URL = 'redis://localhost:6379/1'
 
 
 class ProductionConfig(BaseConfig):

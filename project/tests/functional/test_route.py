@@ -1,7 +1,7 @@
 import json
 
 
-def test_ping(test_app):
+def test_home(test_app):
     client = test_app.test_client()
     resp = client.get('/index')
     data = json.loads(resp.data.decode())
