@@ -2,7 +2,6 @@ import jwt,secrets
 from flask import current_app
 from project.user import db,bcrypt
 import datetime
-from dataclasses import dataclass
 
 class User(db.Model):
     __tablename__ = 'users'
