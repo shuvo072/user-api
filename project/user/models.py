@@ -1,8 +1,9 @@
+from dataclasses import dataclass
 import jwt,secrets
 from flask import current_app
 from project.user import db,bcrypt
 import datetime
-
+@dataclass
 class User(db.Model):
     __tablename__ = 'users'
     user_id = db.Column(db.Integer, primary_key = True, autoincrement=True)
@@ -59,7 +60,7 @@ class User(db.Model):
         #* Use f-string instead of format *#
         return f"<User {self.user_id} : {self.user_firstname} {self.user_lastname} {self.user_username} {self.user_created_at} {self.user_updated_at}>"
 
-
+@dataclass
 class Jobs(db.Model):
     __tablename__ = 'jobs'
     job_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -69,13 +70,14 @@ class Jobs(db.Model):
     end_year = db.Column(db.String(5)) 
     user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'))
 
-    # def __init__(self, job_title, company_name, start_year,
-    # end_year,job_holder):
-    #     self.job_title = job_title
-    #     self.company_name = company_name
-    #     self.start_year = start_year
-    #     self.end_year = end_year
-    #     self.user_id = job_holder
+    def __init__(self, job_title, company_name, start_year,
+    end_year,user):  
+        self.job_title = job_title
+        self.company_name = company_name
+        self.start_year = start_year
+        self.end_year = end_year
+        self.job_holder=user
+
 
     def __repr__(self):
         return f"<Job {self.job_id} : {self.job_title} {self.company_name} {self.start_year} {self.end_year}>"

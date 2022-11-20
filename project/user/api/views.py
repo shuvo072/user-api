@@ -3,6 +3,7 @@ from project.user.models import User,Jobs
 from flask import request,jsonify, make_response
 from project.user import db, bcrypt, cache
 from flask.views import MethodView
+from project.user.api.job_crud import validate_user,get_all_jobs,get_current_job,check_if_user_has_previous_job,add_job
 from project.user.api import user_api_blueprint,auth_blueprint,verified_user_blueprint,job_blueprint,job_history_blueprint
 
 # Admin decorator
@@ -344,18 +345,18 @@ class JobAPI(MethodView):
         if auth_token:
             resp = User.decode_auth_token(auth_token)
             #print(resp)
-            user = User.query.filter_by(user_id=resp).first()
+            user = validate_user(resp)
             if user:        
                 job_title = post_data.get('job_title')
                 company_name = post_data.get('company_name')
                 start_year = post_data.get('start_year')
                 end_year = post_data.get('end_year')
-                user_jobs = Jobs.query.filter_by(user_id=user.user_id).order_by(Jobs.end_year.desc()).all()
+                user_jobs = check_if_user_has_previous_job(user.user_id)
                 if not user_jobs:
-                    db.session.add(Jobs(job_title=job_title, company_name=company_name,
-                    start_year=start_year,end_year=end_year, job_holder=user))
-                    db.session.commit()
-
+                    add_job(job_title,company_name,start_year,end_year,user)
+                    # db.session.add(Jobs(job_title=job_title, company_name=company_name,
+                    # start_year=start_year,end_year=end_year, job_holder=user))
+                    # db.session.commit()
                     response_object = {
                         'message': 'Job added!'
                     }
@@ -367,7 +368,7 @@ class JobAPI(MethodView):
                         if int(start_year) != int(job.start_year) and int(start_year) >= int(job.end_year):
                             if job.job_title==None:
                                 db.session.add(Jobs(job_title=job_title, company_name=company_name,
-                                start_year=start_year,end_year=end_year, job_holder=user))
+                                start_year=start_year,end_year=end_year, user=user))
                                 db.session.commit()
 
                                 response_object = {
@@ -388,7 +389,7 @@ class JobAPI(MethodView):
                         if int(start_year) >= int(job.start_year):
                             job.end_year=start_year
                             db.session.add(Jobs(job_title=job_title, company_name=company_name,
-                            start_year=start_year,end_year=end_year, job_holder=user))
+                            start_year=start_year,end_year=end_year, user=user))
                             db.session.commit()
                             response_object = {
                             'message': 'Job added!'
@@ -420,9 +421,9 @@ class JobAPI(MethodView):
             auth_token = ''
         if auth_token:
             resp = User.decode_auth_token(auth_token)
-            user = User.query.filter_by(user_id=resp).first()
+            user = validate_user(resp)
             if user: 
-                current_job = Jobs.query.filter_by(user_id=resp,end_year=None).first()
+                current_job = get_current_job(resp)
                 responseObject = {
                             'status': 'Current Job',
                             'data': {
@@ -459,9 +460,9 @@ class JobHistoryAPI(MethodView):
             auth_token = ''
         if auth_token:
             resp = User.decode_auth_token(auth_token)
-            user = User.query.filter_by(user_id=resp).first()
+            user = validate_user(resp)
             if user: 
-                jobs = Jobs.query.filter_by(user_id=resp).all()
+                jobs = get_all_jobs(resp)
                 job_history=[]
                 for job in jobs:
                     job_history.append({
