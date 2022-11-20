@@ -61,7 +61,7 @@ class UserAPI(MethodView):
                 response_object = {
                     'message': 'User does not exist!'
                 }
-                return response_object, 400
+                return response_object, 404
                     
     @admin_required
     def post(self):
@@ -89,7 +89,7 @@ class UserAPI(MethodView):
             response_object = {
                 'message': f'User {id} does not exist!'
             }
-            return response_object, 400
+            return response_object, 404
 
         db.session.delete(user)
         db.session.commit()
@@ -142,30 +142,30 @@ class RegisterAPI(MethodView):
         #print(otp_gen)
         cache.set(post_data.get('user_username'),otp_gen)
         if not user:
-            try:
-                user = User(
-                    user_firstname=post_data.get('user_firstname'),
-                    user_lastname=post_data.get('user_lastname'),
-                    user_username=post_data.get('user_username'),
-                    password=post_data.get('password'),
-                    admin=post_data.get('admin')
-                )
+            # try:
+            user = User(
+                user_firstname=post_data.get('user_firstname'),
+                user_lastname=post_data.get('user_lastname'),
+                user_username=post_data.get('user_username'),
+                password=post_data.get('password'),
+                admin=post_data.get('admin')
+            )
 
-                db.session.add(user)
-                db.session.commit()
+            db.session.add(user)
+            db.session.commit()
 
-                responseObject = {
-                    'status': 'success',
-                    'message': 'Successfully registered.',
-                    'otp': otp_gen
-                }
-                return make_response(jsonify(responseObject)), 201
-            except Exception as e:
-                responseObject = {
-                    'status': 'fail',
-                    'message': 'Some error occurred. Please try again.'
-                }
-                return make_response(jsonify(responseObject)), 401
+            responseObject = {
+                'status': 'success',
+                'message': 'Successfully registered.',
+                'otp': otp_gen
+            }
+            return make_response(jsonify(responseObject)), 201
+            # except Exception as e:
+            #     responseObject = {
+            #         'status': 'fail',
+            #         'message': 'Some error occurred. Please try again.'
+            #     }
+            #     return make_response(jsonify(responseObject)), 401
         else:
             responseObject = {
                 'status': 'fail',
@@ -292,20 +292,20 @@ class VerifiedUserAPI(MethodView):
                         }
                     }
                     return make_response(jsonify(responseObject)), 200
-                else:
-                    responseObject = {
-                        'status': 'Verified User',
-                        'data': {
-                            "ID": u.user_id,
-                            "First Name": u.user_firstname,
-                            "Last Name": u.user_lastname,
-                            "Username": u.user_username,
-                            "Created At": u.user_created_at,
-                            "Last Modified": u.user_updated_at,
-                            "Current Job": "Not currently employed"
-                        }
-                    }
-                    return make_response(jsonify(responseObject)), 200 
+                # else:
+                #     responseObject = {
+                #         'status': 'Verified User',
+                #         'data': {
+                #             "ID": u.user_id,
+                #             "First Name": u.user_firstname,
+                #             "Last Name": u.user_lastname,
+                #             "Username": u.user_username,
+                #             "Created At": u.user_created_at,
+                #             "Last Modified": u.user_updated_at,
+                #             "Current Job": "Not currently employed"
+                #         }
+                #     }
+                #     return make_response(jsonify(responseObject)), 200 
             user = User.query.filter_by(user_id=resp).first()
             responseObject = {
                         'status': 'Verified User',

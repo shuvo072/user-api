@@ -2,3 +2,6 @@ migrations
 .vscode
 __pycache__
 venv
+htmlcov
+.coverage
+.coveragerc

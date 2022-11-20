@@ -61,3 +61,13 @@ def test_token_generate():
 #     }
 #     token = jwt.encode(payload,'verysecretkey',algorithm='HS256')
 #     yield token
+
+# @pytest.fixture(scope='module')
+# def add_user():
+#     def _add_user(user_firstname, user_lastname, user_username, password, admin):
+#         user = User(user_firstname=user_firstname,
+#                 user_lastname=user_lastname, user_username=user_username, password=password, admin=admin)
+#         db.session.add(user)
+#         db.session.commit()
+#         return user
+#     return _add_user
