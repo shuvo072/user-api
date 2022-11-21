@@ -65,15 +65,7 @@ def test_current_job(test_app, monkeypatch, test_token_generate):
     client = test_app.test_client()
     token = test_token_generate
     headers = {"Content-Type":"application/json", "Authorization": f"Bearer {token}"}
-    # resp1 = client.post(
-    #     '/api/job/',
-    #     data=json.dumps({
-    #         "job_title":"Software Engineer",
-    #         "company_name":"Intercloud Limited",
-    #         "start_year":"2022"
-    #     }),
-    #     headers = headers
-    # )
+
     resp1 = client.post(
         '/api/job/',
         data=json.dumps({
@@ -128,15 +120,6 @@ def test_all_jobs(test_app, monkeypatch, test_token_generate):
     client = test_app.test_client()
     token = test_token_generate
     headers = {"Content-Type":"application/json", "Authorization": f"Bearer {token}"}
-    # resp1 = client.post(
-    #     '/api/job/',
-    #     data=json.dumps({
-    #         "job_title":"Software Engineer",
-    #         "company_name":"Intercloud Limited",
-    #         "start_year":"2022"
-    #     }),
-    #     headers = headers
-    # )
 
     resp = client.get(
         'api/job/history/',
