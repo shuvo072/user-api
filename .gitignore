@@ -4,5 +4,4 @@ __pycache__
 venv
 htmlcov
 .coverage
-.coveragerc
 .pytest_cache
