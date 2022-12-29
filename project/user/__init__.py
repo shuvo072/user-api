@@ -1,6 +1,5 @@
-import os,logging
-from logging.handlers import RotatingFileHandler
 from flask import Flask
+from flask_cors import CORS
 from flask_bcrypt import Bcrypt
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
@@ -9,6 +8,7 @@ from flask_caching import Cache
 
 #* Application Factory Pattern needs to be implemented *#
 
+cors = CORS()
 bcrypt = Bcrypt()
 db = SQLAlchemy()
 migrate = Migrate()
